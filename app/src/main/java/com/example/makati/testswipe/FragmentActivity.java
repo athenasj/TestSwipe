@@ -1,6 +1,8 @@
 package com.example.makati.testswipe;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -49,6 +51,16 @@ public class FragmentActivity extends AppCompatActivity {
                         Log.e("N and # number is",name+","+phoneNo);
                         Toast.makeText(this, "name:"+name+"#"+phoneNo, Toast.LENGTH_LONG).show();
 
+                        SharedPreferences contactDetail = getSharedPreferences("basicSettings", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor edit = contactDetail.edit();
+                        edit.clear();
+                        edit.putString("contactName",name);
+                        edit.putString("contactNumber",phoneNo);
+                        edit.commit();
+
+                        Intent main2Act = new Intent(FragmentActivity.this,Main2Activity.class);
+                        startActivity(main2Act);
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -58,4 +70,6 @@ public class FragmentActivity extends AppCompatActivity {
             Log.e("Failed", "Not able to pick contact");
         }
     }
+
+
 }

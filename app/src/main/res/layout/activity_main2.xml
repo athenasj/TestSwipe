@@ -61,4 +61,13 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="48dp" />
 
+    <Button
+        android:id="@+id/locButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/editText2"
+        android:layout_below="@+id/btnSendSMS"
+        android:layout_marginTop="49dp"
+        android:text="Button" />
+
 </RelativeLayout>
