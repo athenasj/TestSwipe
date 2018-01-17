@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     int minuti;
     TextView textTimer;
     int progress = 50;
+    boolean permStat = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,27 +31,29 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         minuti = 1;
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.SEND_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+        checkPermissions();
+            /*if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.SEND_SMS)) {
             } else {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.SEND_SMS},
                         MY_PERMISSIONS_REQUEST_SEND_SMS);
-            }
-        }
+            }*/
+
+
 
 
         SwipeButton swipebtn = (SwipeButton) findViewById(R.id.swipe_btn);
         swipebtn.setOnStateChangeListener(new OnStateChangeListener() {
             @Override
             public void onStateChange(boolean active) {
-                Toast.makeText(MainActivity.this, "Toast Message", Toast.LENGTH_SHORT).show();
-                Intent homeIntent = new Intent(MainActivity.this,Main2Activity.class);
+                permStat = checkPermissions();
+                if(permStat)
+                {Intent homeIntent = new Intent(MainActivity.this,Main2Activity.class);
                 startActivity(homeIntent);
-                finish();
+                }else{
+                   permStat = checkPermissions();
+                }
             }
         });
 
@@ -102,6 +105,24 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    }
+
+    public boolean checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.SEND_SMS,
+                            Manifest.permission.READ_CONTACTS,
+                            Manifest.permission.ACCESS_FINE_LOCATION},
+                    2);
+                    return false;}
+        else{
+            return true;
+        }
     }
 
     @Override

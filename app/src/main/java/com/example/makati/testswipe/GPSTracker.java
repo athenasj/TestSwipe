@@ -8,6 +8,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -28,15 +29,14 @@ public class GPSTracker implements LocationListener {
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-
-            Toast.makeText(context, "not permitted.", Toast.LENGTH_SHORT).show();
+            Log.e("Error","permission denied");
             return null;
         }
+
 
         LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         boolean isGPSEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
         if (isGPSEnabled) {
-
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
             Location l = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             Toast.makeText(context, "Got location.", Toast.LENGTH_SHORT).show();

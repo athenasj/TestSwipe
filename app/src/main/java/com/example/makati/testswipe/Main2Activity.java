@@ -9,13 +9,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,31 +34,44 @@ public class Main2Activity extends AppCompatActivity {
     Button locButton;
     private String SimState = "";
     private String phoneNo = ""; // Recipient Phone Number
-    private String message = ""; // Message Body
+    private String message = "test"; // Message Body
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
+
         locButton = (Button)findViewById(R.id.locButton);
         sendBtn = (Button) findViewById(R.id.btnSendSMS);
         txtphoneNo = (EditText) findViewById(R.id.editText);
         txtMessage = (EditText) findViewById(R.id.editText2);
-        forLocationOffline();
+        checkPermission();
+        appPref = getSharedPreferences("basicSettings", Context.MODE_PRIVATE);
+        edit = appPref.edit();
+        edit.putString("lastLong", "none");
+        edit.putString("lastLat", "none");
+        edit.commit();
+
+        startService(new Intent(this, MyService.class));
+        Log.e("Stat","ongoing");
+
+
+
         sendBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 //sendSMSMessage();
-                sendSms();
+                forLocationOffline(); //this gathers the location
+                //sendSms();
             }
         });
-        locButton.setOnClickListener(new View.OnClickListener() {
+        /*locButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 //sendSMSMessage();
 
             }
-        });
+        });*/
 
-        checkPermission();
+
 
         selCon = (ImageButton)findViewById(R.id.selCon);
         selCon.setOnClickListener(new View.OnClickListener() {
@@ -66,7 +80,6 @@ public class Main2Activity extends AppCompatActivity {
                 ContactTest();
             }
         });
-
 
         contactDet();
     }
@@ -77,37 +90,19 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     public void forLocationOffline(){
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            //if not, go here
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    2);}
-            /*if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-            } else {
-
-            }*/
-        else{
-            GPSTracker gpsTracker = new GPSTracker(getApplicationContext());
-            Location loc = null;
-            double lat = 0 ;
-            double longitude = 0;
-            while (loc == null) {
-                loc = gpsTracker.getLocation();
-                if (loc != null) {
-                    lat = loc.getLatitude();
-                    longitude = loc.getLongitude();
-                    Toast.makeText(this, "lat:" + lat + "long" + longitude, Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(this, "Location is null", Toast.LENGTH_LONG).show();
-
-                }
-            }
+        appPref = getSharedPreferences("basicSettings", Context.MODE_PRIVATE);
+        String lat = appPref.getString("lastLat","");
+        String longitude = appPref.getString("lastLong","");
+        if(lat != "none"||longitude !="none")
+        {
             message = "https://www.google.com/maps/@"+lat+","+longitude+",17z";
+            txtMessage.setText(message);
+        }else{
+            Toast.makeText(this, "Trying to fix location. Retry.", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
     //String phoneNo = null;
     String name = null;
@@ -286,4 +281,46 @@ public class Main2Activity extends AppCompatActivity {
             return false;
         }
     }
+
+
+    private void forOtherGPSTracker() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            //if not, go here
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    2);}
+        else{
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            boolean isGPSEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            if (isGPSEnabled) {/*
+                GPSTracker gpsTracker = new GPSTracker(getApplicationContext());
+                Log.e("call gps tracker","calling");
+                Location loc = null;
+                double lat = 0 ;
+                double longitude = 0;
+                while (loc == null) {
+                    Log.e("actual loc while null","calling");
+                    loc = gpsTracker.getLocation();
+                    if (loc != null) {
+                        lat = loc.getLatitude();
+                        longitude = loc.getLongitude();
+                        Toast.makeText(this, "lat:" + lat + "long" + longitude, Toast.LENGTH_LONG).show();
+                    } else {
+                        Log.e("Loc stat","null");
+                    }
+                }
+            *//*NOTE TO SELF: ADD THE COUNTDOWN TIMER FOR LOCATION*//*
+            message = "https://www.google.com/maps/@"+lat+","+longitude+",17z";*/
+
+                startService(new Intent(this, MyService.class));
+                Log.e("Stat","ongoing");
+
+            }else{
+                Toast.makeText(this, "Please enable your GPS.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 }

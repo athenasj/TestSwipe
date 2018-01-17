@@ -44,13 +44,13 @@
         android:layout_centerHorizontal="true" />
 
     <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/editText2"
-        android:textColorHint="@color/abc_primary_text_material_dark"
-        android:hint="Enter SMS"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/editText"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:hint="Enter SMS"
+        android:textColorHint="@color/abc_primary_text_material_dark" />
 
     <Button
         android:layout_width="wrap_content"
